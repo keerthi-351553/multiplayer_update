@@ -1,0 +1,55 @@
+@media screen and (max-width: 767px)
+{
+  #logoSize{
+    width:50%;
+  }
+}
+.footer{
+  position: absolute ;
+ right: 0;
+ bottom: 0;
+ left: 0;
+ padding: 1rem;
+ text-align: center;
+   height: auto;
+   overflow:hidden;
+ /*display:none;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;*/
+}
+#footer{
+  background-color: white;
+}
+/*#ribbon{
+  margin-top: 56%;
+}*/
+.footer-brand-colour {
+ padding-top: 0px!important; 
+ padding-bottom: 10px;
+
+}
+.row {
+ margin-right: -15px; 
+ margin-left: -15px;
+}
+.fbc-pink {
+ background-color: #F27AAA;
+}
+.fbc-elem {
+ height: 2px;
+}
+.fbc-yellow {
+ background-color: #FAED23;
+}
+.fbc-blue {
+ background-color: #6FCCDD;
+}
+
+.footerHome {
+  text-align: center !important;
+  color : black !important;
+  font-family: arial;
+  margin-top: 0px
+}

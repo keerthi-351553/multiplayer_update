@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/bootstrap.superhero.min.css' />
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+  <script src="/javascripts/jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css">
+    body {
+      background-color: white !important;
+      padding: 0px;
+      padding-right: -10px;
+    }
+
+    .style1 {
+      font-size: 45px;
+    }
+    .style2 {
+      font-size: 30px;
+      color: black;
+      line-height: 1;
+    }
+    #footer {
+      background-color: white;
+      position: absolute;
+    /* margin: 0; */
+    bottom: -1px;
+    width: 100%;
+    }
+
+    #name {
+      width: 50%;
+      height: 50px;
+      border-color: green;
+      font-size: 45px;
+      color: black;
+    }
+
+    .footer-brand-colour {
+      padding-top: 0px!important;
+      padding-bottom: 10px;
+    }
+
+    .row {
+      margin-right: -15px;
+      margin-left: -15px;
+    }
+
+    .fbc-pink {
+      background-color: #F27AAA;
+    }
+
+    .fbc-elem {
+      height: 2px;
+    }
+
+    .fbc-yellow {
+      background-color: #FAED23;
+    }
+
+    .fbc-blue {
+      background-color: #6FCCDD;
+    }
+
+    .footerHome {
+      text-align: center !important;
+      color: black !important;
+      font-family: arial;
+      margin-top: 0px
+    }
+
+    #footerTextAllignment {
+      text-align: center;
+      font-size: 15px;
+      color: #646363;
+      font-family: arial;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar navbar-fixed-top" accesskey="">
+    <div class="navbar-inner">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <img src='./images/logo.png' id="logoSize" style="margin-top:1%;margin-left:4%;float:left;margin-bottom:1%;" /></a>
+          <ul class="nav navbar-nav">
+            <li class="active">
+              <h3 style="margin-top: 30%;margin-left: 30%;width: 100%;font-size:55px;">MQ -Race</h3></li>
+          </ul>
+        </div>
+
+        <!-- <ul class="nav">
+  			  <li class="style1">
+  			    <a href="#"><strong>MQ -Race&nbsp;&nbsp; Fast Fingers&nbsp;&nbsp;&nbsp;&nbsp; </strong>
+               <span id="socketio"></span></a>
+  			  </li>
+  			</ul> -->
+
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+
+    <%- body %>
+
+      <nav class="navbar navbar-fixed-bottom" id="footer">
+        <div id="ribbon" class="row footer-brand-colour">
+          <div class="fbc-elem fbc-pink col-xs-4 col-sm-4 col-md-4 col-lg-4" />
+          <div class="fbc-elem fbc-yellow col-xs-4 col-sm-4 col-md-4 col-lg-4" />
+          <div class="fbc-elem fbc-blue col-xs-4 col-sm-4 col-md-4 col-lg-4" />
+        </div>
+        <p id="footerTextAllignment">All Rights Reserved. &copy; Wipro Digital
+      </nav>
+      <script>
+        var user_id = Math.random();
+        var real_time_server = {
+          host: '<%=real_time_server.host %>',
+          port: <%=real_time_server.port %>
+        };
+      </script>
+      <script src="http://<%=real_time_server.host %>:<%=real_time_server.port %>/socket.io/socket.io.js" type="text/javascript" charset="utf-8"></script>
+      <script src="/javascripts/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="/javascripts/knockout-2.0.0.js" type="text/javascript" charset="utf-8"></script>
+  </div>
+</body>
+
+</html>

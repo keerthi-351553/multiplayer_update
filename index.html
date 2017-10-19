@@ -1,0 +1,420 @@
+﻿<script>
+    //util
+    var count;
+    function sort (arr, property, desc){
+      function sorter(aa,bb){
+        var a = !desc ? aa : bb;
+        var b = !desc ? bb : aa;
+          
+        if (typeof a[property] == "number") {
+          return (a[property] - b[property]);
+        } else {
+          return ((a[property] < b[property]) ? -1 : ((a[property] > b[property]) ? 1 : 0));
+        }
+      }
+      return arr.sort(sorter);
+    };
+
+    //util, print msgs --
+    function print_msg (msg, style, time){
+        $('#msg').html('<div class="msg msg-'+ style +'">' + msg + '</div>');
+        $('#msg').fadeIn();
+        setTimeout(function(){$('#msg').fadeOut()},time || 500);
+    }
+
+    function show_error(msg){ print_msg(msg, 'error'); }
+
+    function show_ok(msg){ print_msg(msg, 'ok'); }
+    //end print msgs --
+
+
+    $(document).ready(function () {
+
+        //socket.io -------------------------
+        var server = 'http://' + real_time_server.host + ':' + real_time_server.port;
+        var socket = io.connect(server);
+
+        socket.on('connect', function () {
+            $('#socketio').html('<span class="label label-success">connected!</label>');
+            socket.emit('join', { id: user_id });
+        });
+
+        socket.on('disconnect', function () {
+            $('#socketio').html('<span class="label label-important">disconnected</label>');
+        });
+
+        socket.on('time', function (time) {
+            race.time(time);
+        });
+        socket.on('counts', function (counts) {
+                   count = counts;
+            
+           
+        });
+        socket.on('new_operation', function (operation) {
+           
+            $('#operations').html(operation);
+            $("input:radio").attr("checked", false);
+            //$('input.input_player').val('').select(); //reset and select.
+            filldata(count);
+            if (count == 19) {
+                count = -1
+            }
+
+            count++;
+
+
+        });
+
+        socket.on('history', function (history) {
+            for (var i = 0, l = history.length; i < l; i++) { //sort eath item by score
+                sort(history[i].scores, 'score', true)
+            }
+            race.history(sort(history, 'timestamp', true)); //bind score history (and sort by date)
+        });
+
+        socket.on('scores', function (scores) {
+            race.scores(sort(scores, 'score', true));
+            if (scores.length) { //effect
+                $('.scores').addClass('selected');
+                setTimeout(function () {
+                    $('.scores').removeClass('selected')
+                }, 200);
+            }
+        });
+
+        socket.on('hall_of_fame', function (hall_of_fame) {
+            race.hall_of_fame(sort(hall_of_fame, 'score', true));
+        });
+
+        socket.on('new_game', function (result) {
+            print_msg('new game, new score, hurry up!!', 'new', 2000);
+        });
+
+        socket.on('result_operation', function (result) {
+            if (result == 1)
+                print_msg('good!!', 'success');
+            else if (result == 2)
+                print_msg('other player solved this quest faster than you!', 'warning', 1000);
+            else
+                print_msg('nooooooooo!', 'error');
+        });
+        //end socket.io -------------------------
+
+        //knockout model and binding
+        function Race() {
+            var self = this;
+            self.name = ko.observable();
+
+            // self.input_player1 = ko.observable();
+            self.scores = ko.observableArray();
+            self.history = ko.observableArray();
+            self.hall_of_fame = ko.observableArray();
+            self.time = ko.observableArray();
+
+            self.valid_name = ko.computed(function () {
+                return (self.name() && self.name().length > 2);
+            }, self);
+
+            self.sendOperationResult = function () {
+                var d = $("input[type='radio'][name='ANS']:checked").val();
+
+                var data = { operation: d, name: self.name() };
+                socket.emit('solve_operation', data);
+            }
+        }
+        var race = new Race();
+        ko.applyBindings(race);
+        //end knockout model and binding
+
+        //jQuery bindings
+        $('input.input_player').click(function (e) {
+            this.select();
+        });
+
+        $('#name').focus();
+
+        $('input[name=ANS]:radio').click(function (e) {
+
+            race.sendOperationResult();
+            $("input[type='radio'][name='ANS']").select();
+
+        });
+    });        
+</script>
+<script>
+
+this.filldata=function(count){
+var questions = new Array();
+var choices = new Array();
+var answers = new Array();
+var response = new Array();
+var explanation = new Array();
+
+// To add more questions, just follow the format below.
+
+questions[0] = "How many carat is pure gold?";
+choices[0] = new Array();
+choices[0][0] = "19";    
+choices[0][1] = "18";
+choices[0][2] = "22";
+choices[0][3] = "24";
+answers[0] = 4;
+
+questions[1] = "How many dots are on a  die?";
+choices[1] = new Array();
+choices[1][0] = "21";    
+choices[1][1] = "25";
+choices[1][2] = "32";
+choices[1][3] = "16";
+answers[1] = 1;
+
+questions[2] = "The Tropics of Cancer and Capricorn are _  north and south of the Equator?";
+choices[2] = new Array();
+choices[2][0] = "22.5";    
+choices[2][1] = "23.5";
+choices[2][2] = "24.5";
+choices[2][3] = "22.5";
+answers[2] = 2;
+
+questions[3] = "Who is the author of the book The Secret?";
+choices[3] = new Array();
+choices[3][1] = "Rhonda Byrne";    
+choices[3][1] = "Sheldon B Kopp";
+choices[3][2] = "Richard Bach";
+choices[3][3] = "Spencer Johnson";
+answers[3] = 1;
+
+questions[4] =  "What mineral is an Alaskan diamond? ";
+choices[4] = new Array();
+choices[4][0] = "Ruby";    
+choices[4][1] = "Quartz";
+choices[4][2] = "Diamond";
+choices[4][3] = "Platinum";
+answers[4] = 2;
+
+questions[5] = "What type of creature is Bombay duck ?";
+choices[5] = new Array();
+choices[5][0] = "Duck";    
+choices[5][1] = "Fish";
+choices[5][2] = "Parrot";
+choices[5][3] = "Rat";
+answers[5] =2;
+
+questions[6] = "What colour is the black box on a airplane?";
+choices[6] = new Array();
+choices[6][0] = "Black";    
+choices[6][1] = "Orange";
+choices[6][2] = "Red";
+choices[6][3] = "Blue";
+answers[6] =2;
+
+questions[7] = "What country invented baseball?";
+choices[7] = new Array();
+choices[7][0] = "USA";    
+choices[7][1] = "England";
+choices[7][2] = "Netherlands";
+choices[7][3] = "Germany";
+answers[7] = 2;
+
+
+questions[8] = "The full name of which of these IPL teams contains the word 'India'?";
+choices[8] = new Array();
+choices[8][0] = " Knight Riders";
+choices[8][1] = "Daredevils";
+choices[8][2] = "Warriors";
+choices[8][3] = " Royal Challengers";
+answers[8] = 3;
+
+questions[9] = "Under whose captaincy did Deccan Chargers once become IPL champions?";
+choices[9] = new Array();
+choices[9][0] = "Adam Gilchrist";
+choices[9][1] = "Kumar Sangakkara";
+choices[9][2] = "V V V laxman";
+choices[9][3] = " Shahid Afridi";
+answers[9] = 1;
+
+questions[10] = "What movie so far has the maximum revnue of all time in terms of box office success?";
+choices[10] = new Array();
+choices[10][0] = "Godfather";
+choices[10][1] = "Titanic";
+choices[10][2] = "Zurassic Park";
+choices[10][3] = "Ten Commandments";
+answers[10] = 2;
+
+questions[11] = "Static analyzer tool used by a team is an example of";
+choices[11] = new Array();
+choices[11][0] = "Automation";
+choices[11][1] = "Standardization";
+choices[11][2] = "Mistake Proofing";
+choices[11][3] = "All of the above";
+answers[11] = 4;
+
+questions[12] = "One can surface problems early through the use of";
+choices[12] = new Array();
+choices[12][0] = "Visual Controls";
+choices[12][1] = "Poka-Yoke";
+choices[12][2] = "Mistake Proofing";
+choices[12][3] = "All of the above";
+answers[12] = 4;
+
+questions[13] = "Which of the following is an approach to root cause analysis";
+choices[13] = new Array();
+choices[13][0] = "Customer";
+choices[13][1] = "5 Why";
+choices[13][2] = "Cause and Efffect Diagram";
+choices[13][3] = "Fishbone diagram";
+answers[13] = 4;
+
+questions[14] = "Lean thinking has the potential to improve which aspect of operation?";
+choices[14] = new Array();
+choices[14][0] = "Quality";
+choices[14][1] = "Cost";
+choices[14][2] = "Schedule";
+choices[14][3] = "All the above";
+answers[14] = 4;
+
+questions[15] = "Value Stream Mapping is used for";
+choices[15] = new Array();
+choices[15][0] = "Product Valuation";
+choices[15][1] = "Exposing Waste";
+choices[15][2] = "Noting customer expectation";
+choices[15][3] = " Development Projects ";
+answers[15] = 4;
+
+questions[16] = "5 Whys is a problem solving method applied to ";
+choices[16] = new Array();
+choices[16][0] = "5S practice";
+choices[16][1] = "Identify the seven wastes";
+choices[16][2] = "Analyze the root cause";
+choices[16][3] = "Improve workplace transparency  ";
+answers[16] = 3;
+
+questions[17] = "The critical starting point of Lean thinking ";
+choices[17] = new Array();
+choices[17][0] = "Project Value";
+choices[17][1] = "Customer Value";
+choices[17][2] = "Value Addition";
+choices[17][3] = "Program Value";
+answers[17] = 2;
+
+questions[18] = "Which one represents Null Hypothesis";
+choices[18] = new Array();
+choices[18][0] = "?";
+choices[18][1] = "H1";
+choices[18][2] = "H0";
+choices[18][3] = "P";
+answers[18] = 3;
+
+questions[19] = "Which one is considered as Discrete Data";
+choices[19] = new Array();
+choices[19][0] = "Response Time";
+choices[19][1] = "Team Size";
+choices[19][2] = "Productivity";
+choices[19][3] = "Average Experience";
+answers[19] = 2;
+
+
+$("#QID").text(questions[count]);
+$("#CID1").text(choices[count][0]);
+$("#CID2").text(choices[count][1]);
+$("#CID3").text(choices[count][2]);
+$("#CID4").text(choices[count][3]);
+
+
+
+}
+
+
+</script>
+
+
+
+<div class="alert alert-warning" data-bind="visible: (!valid_name())">  
+  <h2>Be the fastest...!! Test your Agile knowledge in 180 Seconds</h2>
+  <h3>Play against other players in real time! (or try to beat the top scores!)</h3>
+  <p>Please introduce your name to start playing!</p>
+</div>
+
+<p>Your name: <input maxlength="25" type="text" id="name" name="name" value="" data-bind="value: name, valueUpdate: 'afterkeydown'" /></p>
+
+<div style="display:none" data-bind="visible: valid_name">
+  <div class="row-fluid">
+<!--<div class="span12 main">
+        <span id="operations"></span>
+        <span class="equal">=</span>-->
+    <!--    <center>
+<table>
+	<tr><td align="left"><span id="QID">Question</span> </td></tr>
+	<tr><td align="left" ><input type="radio" value="1" name="ANS" id="ans1"><span id="CID1">C1</span></td></tr>
+	<tr><td align="left"><input type="radio" value="2" name="ANS" id="ans2"><span id="CID2">C2</span></td></tr>
+	<tr><td align="left"><input type="radio" value="3" name="ANS" id="ans3"><span id="CID3">C3</span></td></tr>
+	<tr><td align="left"><input type="radio" value="4" name="ANS" id="ans4"><span id="CID4">C4</span></td></tr>
+</table>
+
+
+</center>-->
+      <table align="center" style="width: 652px; height:120px"><tr><td align="left" ><span id="QID" class="style1">Question<br /></span> &nbsp;</td></tr></table>
+    <table align="center" style="width: 652px; height: 202px">
+    
+	<tr><td align="left" class="style3"><input type="radio" accesskey="1" value="1" name="ANS" id="ans1"  style="width:3em; height:3em;"></td><td align="left" >
+            <label for="ans1" style="cursor:pointer;"><span id="CID1" class="style2">C1</span></label></td></tr>
+	<tr><td align="left" class="style3"><input type="radio" accesskey="2" value="2" name="ANS"  id="ans2"  style="width:3em; height:3em;"></td><td align="left">
+            <label for="ans2" style="cursor:pointer;"><span id="CID2" class="style2">C2</span></label></td></tr>
+	<tr><td align="left" class="style3"><input type="radio" accesskey="3" value="3" name="ANS"   id="ans3"  style="width:3em; height:3em;"></td><td align="left">
+            <label for="ans3" style="cursor:pointer;"><span id="CID3" class="style2">C3</span></label></td></tr>
+	<tr><td align="left" class="style3"><input type="radio" accesskey="4" value="4" name="ANS"   id="ans4"   style="width:3em; height:3em;"></td><td align="left">
+            <label for="ans4" style="cursor:pointer;"><span id="CID4" class="style2">C4</span></label></td></tr>
+</table>
+        <!-- <input class="input_player" maxlength="4" type="text" name="player1" value="" data-bind="value: input_player1, valueUpdate: 'afterkeydown'" />  -->   
+        <div id="msg"></div>
+    </div>    
+  </div>
+
+  <div class="row-fluid results">  
+    <div class="span4 current_game">
+      <h3>Current game 
+        <small>(ends in <span id="time" data-bind="text: time, css: { red: time() < 10 }"></span> secs)</small>
+      </h3>
+
+      <div class="scores alert alert-warning">
+        <ol data-bind="foreach: scores">
+          <li><span data-bind="text: player"></span>: 
+                  <span class="score" data-bind="text: score"></span>
+            </li>
+        </ol>
+        <p data-bind="visible: (scores().length==0)">Answer the questions and be the first one to score!</p>
+      </div>
+      
+    </div>    
+
+    <div class="span4">
+      <h3>Game history</h3>
+      <div data-bind="visible: history().length">
+        <div data-bind="foreach: history">
+            <div class="game_history alert alert-warning">
+              <h4><small>game played at: </small> <span data-bind="text: name"> </span></h4>
+              <ol data-bind="foreach: scores">
+                <li><span data-bind="text: player"></span>: <span class="score" data-bind="text: score"></span></li>
+              </ol>
+            </div>
+        </div>
+      </div>    
+    </div>
+
+    <div class="span4 hall_of_fame">
+      <h3>Hall of Fame (top scores)</h3>
+        <ol data-bind="foreach: hall_of_fame">                        
+              <li>               
+                <strong> 
+                <span data-bind="text: player"></span> <span class="score" data-bind="text: score"></span>
+              </strong>
+              <span class="timestamp">
+              (<span data-bind="text: timestamp"></span>)
+              </span>
+              </li>
+        </ol>
+    </div>
+
+  </div>
+</div>
