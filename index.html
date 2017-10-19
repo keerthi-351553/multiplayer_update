@@ -113,7 +113,7 @@
             self.time = ko.observableArray();
 
             self.valid_name = ko.computed(function () {
-                return (self.name() && self.name().length > 2);
+                return (self.name() && self.name().length > 5);
             }, self);
 
             self.sendOperationResult = function () {
