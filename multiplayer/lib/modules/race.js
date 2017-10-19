@@ -73,7 +73,7 @@ function createRace(server){
 		//sort by score
 		util.sort(hall_of_fame, 'score', true);
 		fs.truncate("./data.json",0,function(){
-			fs.writeFileSync("./data.json","[{playerId:"+hall_of_fame[0].player+",score:"+hall_of_fame[0].score.toString()+",time:"+hall_of_fame[0].timestamp+",game:agile}]");
+			fs.writeFileSync("./data.json","[{\"playerId\":\""+hall_of_fame[0].player+"\",\"score\":\""+hall_of_fame[0].score.toString()+"\",\"time\":\""+hall_of_fame[0].timestamp+"\",\"game\":\"agile\"}]");
 		})
 		// console.log("jgdsjfhgdsjgfk",hall_of_fame[0].score,",,,,,,,,,,,"+typeof hall_of_fame[0].score.toString());
 		// var html = fs.writeFileSync("d://myFile.txt","{playerId:"+hall_of_fame[0].player+",score:"+hall_of_fame[0].score.toString()+",time:"+hall_of_fame[0].timestamp+"}");
